@@ -3,6 +3,7 @@ package com.example.beatbop;
 
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -22,12 +23,15 @@ public class MainActivity extends AppCompatActivity {
         signupButton = findViewById(R.id.signupButton);
         loginLink = findViewById(R.id.loginButton);
 
-        signupButton.setOnClickListener(v ->
-                Toast.makeText(MainActivity.this, "Sign-up clicked", Toast.LENGTH_SHORT).show()
+        signupButton.setOnClickListener(v ->{
+                Intent intent = new Intent(this, SignupActivity.class);
+            startActivity(intent);}
+
         );
 
-        loginLink.setOnClickListener(v ->
-                Toast.makeText(MainActivity.this, "Login clicked", Toast.LENGTH_SHORT).show()
+        loginLink.setOnClickListener(v ->{
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);}
         );
     }
 }
