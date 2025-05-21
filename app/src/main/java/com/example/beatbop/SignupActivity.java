@@ -1,9 +1,7 @@
 package com.example.beatbop;
 
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
@@ -33,17 +31,17 @@ public class SignupActivity extends AppCompatActivity {
         // Sign Up button click listener
         signupButton.setOnClickListener(v -> {
             if (validateInputs()) {
-
+                // TODO: Implement signup logic (e.g., Firebase, API call)
                 Toast.makeText(SignupActivity.this, "Sign Up Successful!", Toast.LENGTH_SHORT).show();
-                // Navigate to main activity or login
-                startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                // Navigate to music list activity
+                startActivity(new Intent(SignupActivity.this, MusicListActivity.class));
                 finish();
             }
         });
 
         findViewById(R.id.login_link).setOnClickListener(v -> {
-
             startActivity(new Intent(SignupActivity.this, LoginActivity.class));
+            finish();
         });
     }
 
