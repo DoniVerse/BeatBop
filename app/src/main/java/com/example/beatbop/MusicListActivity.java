@@ -1,5 +1,6 @@
 package com.example.beatbop;
 
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,6 +37,7 @@ public class MusicListActivity extends AppCompatActivity implements TrackAdapter
     private ApiInterface apiInterface;
     private MediaPlayer mediaPlayer;
     private TextView nowPlayingText;
+    private TextView welcomeText;
     private ImageButton playPauseButton;
     private ImageButton stopButton;
     private Track currentTrack;
@@ -56,6 +58,7 @@ public class MusicListActivity extends AppCompatActivity implements TrackAdapter
         setContentView(R.layout.activity_music_list);
 
         initializeViews();
+        setupWelcomeMessage();
         setupRecyclerViews();
         setupClickListeners();
         setupDeezerApi();
@@ -68,8 +71,24 @@ public class MusicListActivity extends AppCompatActivity implements TrackAdapter
         tracksRecyclerView = findViewById(R.id.tracksRecyclerView);
         searchResultsLayout = findViewById(R.id.searchResultsLayout);
         nowPlayingText = findViewById(R.id.nowPlayingText);
+        welcomeText = findViewById(R.id.welcomeText);
         playPauseButton = findViewById(R.id.playPauseButton);
         stopButton = findViewById(R.id.stopButton);
+
+        // Initialize logout button
+        ImageButton logoutButton = findViewById(R.id.logoutButton);
+        logoutButton.setOnClickListener(v -> logout());
+
+        // Initialize back button
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(v -> onBackPressed());
+    }
+
+    private void setupWelcomeMessage() {
+        String username = getIntent().getStringExtra("USERNAME");
+        if (username != null && !username.isEmpty()) {
+            welcomeText.setText("Welcome, " + username + "!");
+        }
     }
 
     private void setupRecyclerViews() {
@@ -182,7 +201,7 @@ public class MusicListActivity extends AppCompatActivity implements TrackAdapter
     private void playTrack(Track track) {
         try {
             mediaPlayer.reset();
-            mediaPlayer.setDataSource(track.getPreviewUrl());
+            mediaPlayer.setDataSource(track.getPreview());
             mediaPlayer.prepareAsync(); // Using async preparation for better performance
             currentTrack = track;
         } catch (IOException e) {
@@ -216,6 +235,37 @@ public class MusicListActivity extends AppCompatActivity implements TrackAdapter
         artist.setName(name);
         artist.setPictureMedium(pictureUrl);
         return artist;
+    }
+
+    private void logout() {
+        // Stop any playing music
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+
+        // Navigate to login screen
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (searchResultsLayout.getVisibility() == View.VISIBLE) {
+            // If search results are showing, go back to artists view
+            searchResultsLayout.setVisibility(View.GONE);
+            artistsRecyclerView.setVisibility(View.VISIBLE);
+            searchView.setQuery("", false);
+            searchView.clearFocus();
+        } else {
+            // If on main screen, minimize app instead of going back
+            moveTaskToBack(true);
+        }
     }
 
     @Override

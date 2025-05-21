@@ -7,17 +7,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.example.beatbop.data.AppDatabase;
+import com.example.beatbop.data.entity.User;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LoginActivity extends AppCompatActivity {
 
     private TextInputEditText emailInput, passwordInput;
     private TextInputLayout emailLayout, passwordLayout;
     private MaterialButton loginButton;
+    private AppDatabase db;
+    private ExecutorService executorService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Initialize database and executor
+        db = AppDatabase.getInstance(getApplicationContext());
+        executorService = Executors.newSingleThreadExecutor();
 
         // Initialize views
         emailInput = findViewById(R.id.email_input);
@@ -29,11 +39,24 @@ public class LoginActivity extends AppCompatActivity {
         // Login button click listener
         loginButton.setOnClickListener(v -> {
             if (validateInputs()) {
-                // TODO: Implement login logic (e.g., Firebase, API call)
-                Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
-                // Navigate to music list activity
-                startActivity(new Intent(LoginActivity.this, MusicListActivity.class));
-                finish();
+                String email = emailInput.getText().toString().trim();
+                String password = passwordInput.getText().toString().trim();
+
+                executorService.execute(() -> {
+                    User user = db.userDao().login(email, password);
+                    runOnUiThread(() -> {
+                        if (user != null) {
+                            Toast.makeText(LoginActivity.this, "Welcome back, " + user.getName() + "!", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(LoginActivity.this, MusicListActivity.class);
+                            intent.putExtra("USERNAME", user.getName());
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                });
             }
         });
 
@@ -73,5 +96,11 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         return isValid;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executorService.shutdown();
     }
 }

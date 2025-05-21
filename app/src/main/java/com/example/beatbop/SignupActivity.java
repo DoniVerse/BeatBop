@@ -7,17 +7,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.example.beatbop.data.AppDatabase;
+import com.example.beatbop.data.entity.User;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SignupActivity extends AppCompatActivity {
 
     private TextInputEditText nameInput, emailInput, passwordInput;
     private TextInputLayout nameLayout, emailLayout, passwordLayout;
     private MaterialButton signupButton;
+    private AppDatabase db;
+    private ExecutorService executorService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+
+        // Initialize database and executor
+        db = AppDatabase.getInstance(getApplicationContext());
+        executorService = Executors.newSingleThreadExecutor();
 
         // Initialize views
         nameInput = findViewById(R.id.name_input);
@@ -31,11 +41,41 @@ public class SignupActivity extends AppCompatActivity {
         // Sign Up button click listener
         signupButton.setOnClickListener(v -> {
             if (validateInputs()) {
-                // TODO: Implement signup logic (e.g., Firebase, API call)
-                Toast.makeText(SignupActivity.this, "Sign Up Successful!", Toast.LENGTH_SHORT).show();
-                // Navigate to music list activity
-                startActivity(new Intent(SignupActivity.this, MusicListActivity.class));
-                finish();
+                String name = nameInput.getText().toString().trim();
+                String email = emailInput.getText().toString().trim();
+                String password = passwordInput.getText().toString().trim();
+
+                executorService.execute(() -> {
+                    // Check if email is already taken
+                    if (db.userDao().isEmailTaken(email)) {
+                        runOnUiThread(() -> {
+                            emailLayout.setError("Email is already registered");
+                        });
+                        return;
+                    }
+
+                    // Create new user
+                    User user = new User();
+                    user.setName(name);
+                    user.setEmail(email);
+                    user.setPassword(password); // In a real app, hash the password
+
+                    // Insert user
+                    long userId = db.userDao().insert(user);
+                    
+                    runOnUiThread(() -> {
+                        if (userId > 0) {
+                            Toast.makeText(SignupActivity.this, "Sign Up Successful!", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(SignupActivity.this, MusicListActivity.class);
+                            intent.putExtra("USERNAME", name);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Toast.makeText(SignupActivity.this, "Sign Up Failed!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                });
             }
         });
 
@@ -82,5 +122,11 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         return isValid;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executorService.shutdown();
     }
 }
