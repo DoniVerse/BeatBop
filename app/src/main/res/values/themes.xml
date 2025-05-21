@@ -1,9 +1,62 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.BeatBop" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Theme.BeatBop" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Color scheme -->
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorPrimaryVariant">@color/accent_dark</item>
+        <item name="colorOnPrimary">@color/text_primary</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/accent_dark</item>
+        <item name="colorOnSecondary">@color/text_primary</item>
+        <item name="android:statusBarColor">@color/surface</item>
+        <item name="android:windowBackground">@color/background_dark</item>
+        <item name="android:navigationBarColor">@color/background_dark</item>
+
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@color/background_darker</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- SearchView styling -->
+        <item name="searchViewStyle">@style/Widget.App.SearchView</item>
+
+        <!-- Button styling -->
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
     </style>
 
-    <style name="Theme.BeatBop" parent="Base.Theme.BeatBop" />
+    <!-- Theme without action bar for the player activity -->
+    <style name="Theme.BeatBop.NoActionBar" parent="Theme.BeatBop">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <!-- SearchView style -->
+    <style name="Widget.App.SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="queryBackground">@android:color/transparent</item>
+        <item name="submitBackground">@color/surface</item>
+        <item name="queryHint">Search for tracks, artists, or albums...</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
+        <item name="android:editTextColor">@color/text_primary</item>
+        <item name="android:textCursorDrawable">@color/accent</item>
+    </style>
+
+    <!-- Button style -->
+    <style name="Widget.App.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/accent</item>
+    </style>
+
+    <style name="Theme.BeatBop.Dialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="android:windowBackground">@color/background_dark</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.App.Button</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.App.Button</item>
+    </style>
 </resources>
